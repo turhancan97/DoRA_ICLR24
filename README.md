@@ -166,3 +166,19 @@ If you find this repository useful, please consider giving a star ⭐ and citati
   year={2024}  
 }
 ```
+
+---
+
+## t-SNE visualization of the features from a smaller subset of ImageNet with 10 classes
+
+![t-sne](eval/tsne/tsne.png)
+
+## Visualizing attention maps for various heads in some images
+
+![dog](eval/attention_data/attn-results/attn_heads_dog.png)
+
+![airplane](eval/attention_data/attn-results/attn_heads_airplane.png)
+
+![parachute](eval/attention_data/attn-results/attn_heads_parachute.png)
+
+![cow](eval/attention_data/attn-results/attn_heads_cow.png)
