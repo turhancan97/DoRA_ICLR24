@@ -1,0 +1,6 @@
+__pycache__
+dataset/
+# eval/attention_data
+# eval/tsne
+model/
+output/
