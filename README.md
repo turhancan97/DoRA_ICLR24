@@ -169,7 +169,7 @@ If you find this repository useful, please consider giving a star ⭐ and citati
 
 ---
 
-## Evaluation results for Linear classification and KNN evaluation on 10 classes of ImageNet (9469 train and 3925 validation images)
+## Evaluation results for KNN and Linear classification on 10 classes of ImageNet (9469 train and 3925 validation images)
 
 ### Linear classification
 
