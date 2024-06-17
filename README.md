@@ -169,6 +169,28 @@ If you find this repository useful, please consider giving a star ⭐ and citati
 
 ---
 
+## Evaluation results for Linear classification and KNN evaluation on 10 classes of ImageNet (9469 train and 3925 validation images)
+
+### Linear classification
+
+```
+Evaluations on the validation set of Tiny ImageNet:
+
+Linear Classifier trained 10 epoch:
+Acc@1 88.204 Acc@5 99.389
+```
+
+### KNN evaluation
+
+```
+Evaluations on the validation set of Tiny ImageNet:
+
+10-NN classifier result: Top1: 82.36942675159236, Top5: 97.47770700636943
+20-NN classifier result: Top1: 82.70063694267516, Top5: 98.03821656050955
+100-NN classifier result: Top1: 81.35031847133757, Top5: 98.62420382165605
+200-NN classifier result: Top1: 80.43312101910828, Top5: 98.54777070063695
+```
+
 ## t-SNE visualization of the features from a smaller subset of ImageNet with 10 classes
 
 ![t-sne](eval/tsne/tsne.png)
