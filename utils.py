@@ -652,7 +652,7 @@ class MultiCropWrapper(nn.Module):
     concatenate all the output features and run the head forward on these
     concatenated features.
     """
-    def __init__(self, backbone, head):
+    def __init__(self, backbone, head, image_scale = 1):
         super(MultiCropWrapper, self).__init__()
         # disable layers dedicated to ImageNet labels classification
         backbone.fc, backbone.head = nn.Identity(), nn.Identity()
@@ -663,6 +663,7 @@ class MultiCropWrapper(nn.Module):
         self.embed_dim = self.backbone.embed_dim
         
         self.num_tokens = ((self.backbone.img_size[0] // self.backbone.patch_size) ** 2) + 1
+        self.num_tokens = ((image_scale**2) * self.num_tokens) - ((image_scale**2) - 1)
         # print(self.num_tokens)
         # exit()
 
