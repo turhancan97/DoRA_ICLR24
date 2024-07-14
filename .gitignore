@@ -1,6 +1,22 @@
 __pycache__
 dataset/
-# eval/attention_data
-# eval/tsne
+eval/object_tracking/input/
+eval/object_tracking/output/
+eval/object_detection/input/
+eval/object_detection/output/
+eval/object_detection/logs/
+eval/visualize_attention/attention_data/
+eval/visualize_features/tsne/
+eval/eval_obj_detect_2.py
+eval/eval_obj_detect_3.py
+eval/eval_obj_detect.py
+eval/video_3.py
+eval/video.py
 model/
 output/
+# *.mp4
+# *.jpg
+# *.png
+# *.gif
+.DS_Store
+# *.txt
