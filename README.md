@@ -58,7 +58,7 @@ The requirements are easily installed via Anaconda. Here we create a conda envir
 conda create -n dora python=3.8.2
 conda activate dora
 conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia
-conda install pillow==9.4.0 scipy tensorboardX faiss-gpu==1.6.1 tqdm lmdb scikit-learn pyarrow==2.0.0 DALL-E munkres six einops
+pip install -r requirements.txt
 ```
 
 ### Pretraining DoRA
@@ -145,6 +145,28 @@ python3 -m torch.distributed.launch --nproc_per_node=4 eval_knn.py \
 --pretrained_weights /path-to-checkpoint/venice/checkpoint.pth
 ```
 
+### Evaluation results for KNN and Linear classification on 10 classes of ImageNet (9469 train and 3925 validation images)
+
+#### Linear classification
+
+```
+Evaluations on the validation set of Tiny ImageNet:
+
+Linear Classifier trained 10 epoch:
+Acc@1 88.204 Acc@5 99.389
+```
+
+#### KNN evaluation
+
+```
+Evaluations on the validation set of Tiny ImageNet:
+
+10-NN classifier result: Top1: 82.36942675159236, Top5: 97.47770700636943
+20-NN classifier result: Top1: 82.70063694267516, Top5: 98.03821656050955
+100-NN classifier result: Top1: 81.35031847133757, Top5: 98.62420382165605
+200-NN classifier result: Top1: 80.43312101910828, Top5: 98.54777070063695
+```
+
 ### Semantic Segmentation (ADE20K) and Object Detection (MS-COCO)
 
 Please follow the evaluation scripts from [iBOT](https://github.com/bytedance/ibot)
@@ -169,38 +191,152 @@ If you find this repository useful, please consider giving a star ⭐ and citati
 
 ---
 
-## Evaluation results for KNN and Linear classification on 10 classes of ImageNet (9469 train and 3925 validation images)
+## Object Detection Downstream Task with Pascal VOC Dataset
 
-### Linear classification
+### Explanation
+Pretraining self-supervised models has become a powerful approach for improving performance on downstream tasks, such as object detection. By leveraging large amounts of unlabelled data, self-supervised learning methods can learn robust and generalizable features, which can be transferred to specific tasks with limited labelled data. This process not only reduces the need for extensive manual annotation but also enhances the model's ability to generalize to new and diverse datasets.
+
+### Benefits of Self-Supervised Learning
+1. **Data Efficiency**: Self-supervised learning utilizes vast amounts of unlabelled data, which is easier to obtain compared to labelled data.
+2. **Feature Learning**: It enables models to learn rich and diverse features that are transferable to various downstream tasks.
+3. **Reduced Annotation Costs**: By minimizing the reliance on labelled data, it significantly cuts down the cost and effort involved in data annotation.
+4. **Improved Generalization**: Models pretrained in a self-supervised manner often exhibit better generalization to new and unseen data.
+
+### Implementation Details
+In this task, self-supervised vision transformer (ViT) model as the backbone for object detection task is used. The backbone is pretrained using a DoRA method, which provides a strong foundation of learned features. Then the entire architecture using Faster RCNN, a popular object detection model, on the Pascal VOC dataset was fine-tuned.
+
+**Steps:**
+1. **Pretraining the Backbone**: 
+   - Self-supervised ViT DoRA model pretrained on Walking Tour videos to use it as backbone for the object detection model was downloaded. 
+2. **Object Detection Model**:
+   - The pretrained ViT model serves as the backbone for the Faster RCNN object detection framework.
+   - Faster RCNN is then fine-tuned on the Pascal VOC dataset, allowing it to learn the specifics of object detection with the robust features provided by the ViT backbone.
+
+The entire architecture, including both the backbone and the object detection head, is fine-tuned to ensure optimal performance on the object detection task.
+
+### Useful Resources
+- **Vision Transformer Backbone**:
+  The paper by Li et al. (2022) was instrumental in developing the ViT backbone. The insights from ["Exploring Plain Vision Transformer Backbones for Object Detection"](https://arxiv.org/pdf/2203.16527) (arXiv preprint arXiv:2203.16527) were particularly valuable.
+- **Detectron2**:
+  [Detectron2's codebase](https://github.com/facebookresearch/detectron2) was extremely helpful in implementing the Faster RCNN model and fine-tuning the entire architecture for object detection.
+
+### How to run?
+[You can download the weights of the pretrained object detection model with ViT bacbone here](https://drive.google.com/file/d/1pAwTVPSWF-HID1uLz1j2N9HotWiJ4Xl-/view?usp=drive_link).
 
 ```
-Evaluations on the validation set of Tiny ImageNet:
-
-Linear Classifier trained 10 epoch:
-Acc@1 88.204 Acc@5 99.389
+cd eval/object_detection
 ```
 
-### KNN evaluation
+#### Train Object Detection Model
 
 ```
-Evaluations on the validation set of Tiny ImageNet:
-
-10-NN classifier result: Top1: 82.36942675159236, Top5: 97.47770700636943
-20-NN classifier result: Top1: 82.70063694267516, Top5: 98.03821656050955
-100-NN classifier result: Top1: 81.35031847133757, Top5: 98.62420382165605
-200-NN classifier result: Top1: 80.43312101910828, Top5: 98.54777070063695
+python -m torch.distributed.launch eval_object_detect.py \
+--batch_size_per_gpu 4 --data_path "../../dataset/pascal"  \
+--output_dir "../../output/all/detection"
 ```
+
+#### Inference on Images
+```
+python inference.py \
+--image_input_path 'input/images/cat.jpg' --image_output_path 'output/images/cat.jpg'
+```
+
+#### Inference on Videos
+```
+python inference_video.py \
+--video_input_path 'input/videos/venice.mp4' --video_output_path 'output/videos/venice.mp4'
+```
+
+#### Evaluation on the Validation Dataset
+```
+python evaluation.py \
+--data_path "../../dataset/pascal"  \
+--output_dir "../../output/all/detection"
+```
+
+### Example Results:
+
+**Images:**
+
+![images](images/object_detection/object_detection_image.png)
+
+**Video:**
+
+![video](images/object_detection/object_detection_video.gif)
+
+## Track Objects
+
+The DoRA method leverages the attention from the [CLS] token of distinct heads in a vision transformer to identify and consistently track multiple objects within a given frame across temporal sequences. The vision transformer model uses multiple attention heads to focus on different parts of the input image. Each head attends to different features or objects within the frame.
+
+### How to run?
+
+```
+cd eval/object_tracking
+```
+
+#### Visualization of Multi-Object Masks on the Top of Frames
+```
+python track_objects.py \
+--input_video "input/venice.mp4"  \
+--output_video "output/venice.mp4"
+```
+
+#### Visualization of Attention Heads on the Top of Frames
+```
+python attention_video.py \
+--input_video "input/4.mp4"  \
+--output_video "output/4.mp4"
+```
+### Example Results:
 
 ## t-SNE visualization of the features from a smaller subset of ImageNet with 10 classes
 
-![t-sne](eval/tsne/tsne.png)
+To illustrate the effectiveness of DoRA self-supervised learning approach, t-SNE was used to visualize the features from a smaller subset of ImageNet with 10 classes.
+
+![t-sne](images/tsne/tsne.png)
+
+### How to run?
+
+First, download the small subset of ImageNet dataset with 10 classes from [this link](https://github.com/fastai/imagenette).
+
+```
+cd eval/visualize_features
+```
+
+```
+python3 -m torch.distributed.launch visualize_embeddings.py \
+--data_path ../../dataset/imagenet/ \
+--checkpoint ../../model/venice/checkpoint.pth
+```
 
 ## Visualizing attention maps for various heads in some images
 
-![dog](eval/attention_data/attn-results/attn_heads_dog.png)
+Attention maps provide insights into which parts of the image the model focuses on.
 
-![airplane](eval/attention_data/attn-results/attn_heads_airplane.png)
+### How to run?
 
-![parachute](eval/attention_data/attn-results/attn_heads_parachute.png)
+```
+cd eval/visualize_attention
+```
 
-![cow](eval/attention_data/attn-results/attn_heads_cow.png)
+```
+python visualize_attention.py \
+--output_dir attention_data/attn-results/ \
+--checkpoint ../../model/venice/checkpoint.pth \
+--image_path attention_data/parachute.JPEG \
+--threshold 0.5
+```
+
+###  Self-attention map from each map
+
+![dog](images/attention_images/attn_heads_dog.png)
+
+![airplane](images/attention_images/attn_heads_airplane.png)
+
+![parachute](images/attention_images/attn_heads_parachute.png)
+
+![cow](images/attention_images/attn_heads_cow.png)
+
+### Self-attention map from multiple heads are visualized with different color
+
+![all](images/attention_images/color_attention.jpg)
