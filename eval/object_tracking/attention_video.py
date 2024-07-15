@@ -30,6 +30,9 @@ def get_args_parser():
     return parser
 
 def load_model(args):
+    """
+    Loads a pre-trained model for object tracking.
+    """
     model = vits.__dict__[args.arch](patch_size=args.patch_size, num_classes=0)
     print(f"Model {args.arch} {args.patch_size}x{args.patch_size} built.")
     # embed_dim = model.embed_dim
@@ -58,10 +61,24 @@ def sample_frames(video_path, frame_per_clip, step_between_clips):
         shuffle=False,
         drop_last=True
     )
-    print(f"Data loaded")
+    print("Data loaded")
     return data_loader
 
 def visualize_attention(model, data_loader, patch_size, viz_atn=False):
+    """
+    Visualizes the attention maps of a given model on a set of images.
+
+    Args:
+        model (nn.Module): The model for which attention maps are to be visualized.
+        data_loader (DataLoader): The data loader containing the images.
+        patch_size (int): The size of the patches used by the model.
+        viz_atn (bool, optional): Whether to visualize the attention maps using matplotlib. 
+                                  Defaults to False.
+
+    Returns:
+        torch.Tensor: A tensor containing the attention maps for each image in the data loader.
+                      Shape: [num_images, num_heads, width, height]
+    """
     # move images to gpu
     images = [im.cuda(non_blocking=True) for im in data_loader]
     # print('Iteration: ',it)
@@ -235,7 +252,7 @@ class DataAugmentationDINO(object):
         # global_2 = torch.zeros(gc_frame2.shape)
         
         for cnt in range(num_frame):
-            global_1[cnt,:]= self.global_transfo1(gc_frame1[cnt,:])
+            global_1[cnt,:] = self.global_transfo1(gc_frame1[cnt,:])
             
             # global_2[cnt,:]= self.global_transfo2(gc_frame2[cnt,:])
         
