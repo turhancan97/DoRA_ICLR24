@@ -12,7 +12,7 @@ eval/eval_obj_detect_3.py
 eval/eval_obj_detect.py
 eval/video_3.py
 eval/video.py
-model/
+# model/
 output/
 # *.mp4
 # *.jpg
