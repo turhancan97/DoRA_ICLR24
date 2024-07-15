@@ -289,6 +289,10 @@ python attention_video.py \
 ```
 ### Example Results:
 
+**Multi-Object Masks on the Top of Frames**
+
+![video1](images/object_tracking/elephant.gif)
+
 **Attention Heads on the Top of Frames:**
 
 ![video2](images/object_tracking/venice.gif)
