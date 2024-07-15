@@ -289,6 +289,10 @@ python attention_video.py \
 ```
 ### Example Results:
 
+**Attention Heads on the Top of Frames:**
+
+![video2](images/object_tracking/venice.gif)
+
 ## t-SNE visualization of the features from a smaller subset of ImageNet with 10 classes
 
 To illustrate the effectiveness of DoRA self-supervised learning approach, t-SNE was used to visualize the features from a smaller subset of ImageNet with 10 classes.
