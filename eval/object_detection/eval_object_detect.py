@@ -134,7 +134,7 @@ def data_loader(data_path):
 
 def train(args, detection_model, train_loader, val_loader):
 
-    # Freeze DORA weights
+    # Don't Freeze DORA weights and train whole model
     for param in detection_model.parameters():
         param.requires_grad = True
 
